@@ -1,12 +1,13 @@
 import json
 
+from django.conf import settings
 from django.http import HttpResponseBadRequest, JsonResponse, StreamingHttpResponse
 from django.shortcuts import get_object_or_404
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 from rest_framework.generics import ListAPIView, RetrieveAPIView
 
-from .llm.interviewer import stream_reply
+from .llm.interviewer import get_client, stream_reply
 from .llm.markers import MarkerFilter
 from .models import Conversation, Message
 from .serializers import ConversationDetailSerializer, ConversationSummarySerializer
@@ -140,3 +141,22 @@ def generate_note_view(request, pk):
     conversation.has_red_flags = bool(red_flags)
     conversation.save(update_fields=["status", "chief_complaint_summary", "has_red_flags", "updated_at"])
     return JsonResponse({"data": data, "red_flags": red_flags})
+
+
+MAX_AUDIO_BYTES = 2_000_000
+
+
+@csrf_exempt
+@require_POST
+def transcribe(request):
+    audio = request.FILES.get("audio")
+    if audio is None or audio.size > MAX_AUDIO_BYTES:
+        return JsonResponse({"error": "audio file required, max 2 MB"}, status=400)
+    try:
+        result = get_client().audio.transcriptions.create(
+            model=settings.TRANSCRIBE_MODEL,
+            file=(audio.name or "audio.webm", audio.read(), audio.content_type or "audio/webm"),
+        )
+    except Exception:
+        return JsonResponse({"error": "Transcription failed. Please type instead."}, status=502)
+    return JsonResponse({"text": result.text})
