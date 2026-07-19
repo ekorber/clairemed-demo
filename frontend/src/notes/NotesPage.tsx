@@ -3,6 +3,7 @@ import { Link, useParams } from "react-router-dom";
 import { api } from "../api/client";
 import type { ConversationDetail, ConversationSummary } from "../api/types";
 import NoteView from "./NoteView";
+import Transcript from "./Transcript";
 
 export default function NotesPage() {
   const { id } = useParams();
@@ -58,10 +59,11 @@ export default function NotesPage() {
           detailError ? (
             <p className="p-8 text-red-600">Couldn't load this note.</p>
           ) : detail ? (
-            <>
-              <Link to="/notes" className="m-4 inline-block text-sm text-teal-700 md:hidden">← All conversations</Link>
+            <div className="mx-auto max-w-3xl space-y-4 p-4 sm:p-6">
+              <Link to="/notes" className="inline-block text-sm text-teal-700 md:hidden">← All conversations</Link>
               <NoteView detail={detail} />
-            </>
+              <Transcript messages={detail.messages} patientName={detail.patient_first_name} />
+            </div>
           ) : (
             <p className="p-8 text-slate-400">Loading…</p>
           )
