@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
+import MicButton from "./MicButton";
 import StartForm from "./StartForm";
 import StageIndicator from "./StageIndicator";
 import { useChat } from "./useChat";
@@ -66,7 +67,7 @@ export default function ChatPage() {
       {!state.interviewComplete && state.phase !== "done" && (
         <div className="border-t border-slate-200 bg-white p-3">
           <div className="flex items-end gap-2">
-            {/* MicButton slot — added in Task 13 */}
+            <MicButton disabled={busy} onTranscript={(text) => setInput((v) => (v ? v + " " : "") + text)} />
             <textarea
               className="max-h-32 flex-1 resize-none rounded-xl border border-slate-300 px-3 py-2 focus:border-teal-500 focus:outline-none"
               rows={1} maxLength={2000} placeholder="Type your answer…"
