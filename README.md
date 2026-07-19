@@ -24,7 +24,7 @@ docker compose up -d db
 cd backend
 python -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
-export MYSQL_HOST=db MYSQL_DATABASE=clairemed MYSQL_USER=clairemed MYSQL_PASSWORD=clairemed-dev
+export MYSQL_HOST=127.0.0.1 MYSQL_DATABASE=clairemed MYSQL_USER=clairemed MYSQL_PASSWORD=clairemed-dev
 python manage.py migrate
 python manage.py runserver
 
