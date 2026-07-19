@@ -27,6 +27,6 @@ def test_generate_note_forces_objective_placeholder_and_labels_transcript():
 
     kwargs = get_client.return_value.chat.completions.create.call_args.kwargs
     transcript = kwargs["messages"][1]["content"]
-    assert "Claire: Hi Ana!" in transcript
+    assert "Alice: Hi Ana!" in transcript
     assert "Patient: My chest feels tight" in transcript
     assert kwargs["response_format"]["json_schema"]["strict"] is True

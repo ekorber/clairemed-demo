@@ -1,6 +1,6 @@
-# ClaireMed Demo
+# Alice — a demo for Claire (clairemed.ai)
 
-A demo of Claire, an AI clinical intake assistant for outpatient clinics: patients complete a
+Alice is a demo recreation of Claire (clairemed.ai), an AI clinical intake assistant for outpatient clinics: patients complete a
 conversational AI intake chat before their appointment, the transcript is structured into a
 clinical history, and a draft SOAP note is generated for the physician to review and sign. This
 repo is a Django (DRF) + MySQL backend, a Vite/React SPA frontend, and a production Docker

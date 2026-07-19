@@ -22,7 +22,7 @@ function sseResponse(chunks: string[]): Response {
 describe("useChat", () => {
   it("retries a failed greeting by starting over, not sending an empty message", async () => {
     vi.mocked(api.startConversation).mockResolvedValueOnce(sseResponse([
-      'data: {"conversation_id": "abc"}\n\ndata: {"error": "Claire had trouble replying."}\n\n',
+      'data: {"conversation_id": "abc"}\n\ndata: {"error": "Alice had trouble replying."}\n\n',
     ]));
     const { result } = renderHook(() => useChat());
     await act(async () => { await result.current.start({ firstName: "Ana", age: 34, sex: "female" }); });

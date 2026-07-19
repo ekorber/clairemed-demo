@@ -37,7 +37,7 @@ def _sse(payload):
 
 
 def _reply_stream(conversation, first_event=None):
-    """Stream Claire's next reply for `conversation`, persisting it when done."""
+    """Stream Alice's next reply for `conversation`, persisting it when done."""
     # Resolve stream_reply now, synchronously, while this call is still on the
     # request dispatch stack. StreamingHttpResponse content is lazy: the generator
     # below only runs once something iterates `streaming_content`, which for a
@@ -74,7 +74,7 @@ def _reply_stream(conversation, first_event=None):
             })
         except Exception:
             logger.exception("chat stream failed for conversation %s", conversation.id)
-            yield _sse({"error": "Claire had trouble replying. Please try again."})
+            yield _sse({"error": "Alice had trouble replying. Please try again."})
 
     response = StreamingHttpResponse(gen(), content_type="text/event-stream")
     response["Cache-Control"] = "no-cache"

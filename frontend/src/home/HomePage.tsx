@@ -3,11 +3,11 @@ import { Link } from "react-router-dom";
 const features = [
   {
     title: "Conversational AI Intake",
-    body: "Claire interviews the patient before the visit — one question at a time, streamed token-by-token, adapting every follow-up to the previous answer. The interview follows the structure clinicians actually use (OLDCARTS for the presenting complaint), and patients can speak instead of type: tap the mic, review the transcript, then send.",
+    body: "Alice interviews the patient before the visit — one question at a time, streamed token-by-token, adapting every follow-up to the previous answer. The interview follows the structure clinicians actually use (OLDCARTS for the presenting complaint), and patients can speak instead of type: tap the mic, review the transcript, then send.",
   },
   {
     title: "Red-Flag Screening",
-    body: "Claire screens for danger signs specific to the complaint — chest pain prompts questions about breathlessness and radiating pain, headaches about sudden onset and vision changes. Anything concerning is surfaced at the top of the note and badged in the sidebar. Claire gathers information only; she never diagnoses, and says so if asked.",
+    body: "Alice screens for danger signs specific to the complaint — chest pain prompts questions about breathlessness and radiating pain, headaches about sudden onset and vision changes. Anything concerning is surfaced at the top of the note and badged in the sidebar. Alice gathers information only; she never diagnoses, and says so if asked.",
   },
   {
     title: "Structured History Capture",
@@ -53,10 +53,13 @@ export default function HomePage() {
   return (
     <div className="mx-auto max-w-5xl px-4 py-12">
       <section className="text-center">
-        <h1 className="text-4xl font-extrabold tracking-tight sm:text-5xl">An AI clinical partner, <span className="text-teal-600">demoed end-to-end</span></h1>
+        <h1 className="text-5xl font-extrabold tracking-tight text-teal-600 sm:text-6xl">Alice</h1>
+        <p className="mt-3 text-lg font-medium text-slate-700">
+          A demo for Claire (<a href="https://clairemed.ai" target="_blank" rel="noopener noreferrer" className="text-teal-700 underline hover:text-teal-800">clairemed.ai</a>)
+        </p>
         <p className="mx-auto mt-4 max-w-2xl text-lg text-slate-600">
-          A working recreation of clairemed.ai's core loop: Claire interviews the patient before the
-          visit, captures a structured medical history, flags what's urgent, and drafts the clinical
+          Alice recreates Claire's core loop: she interviews the patient before the visit,
+          captures a structured medical history, flags what's urgent, and drafts the clinical
           note — so the physician walks in prepared and walks out with documentation nearly done.
         </p>
         <p className="mt-4 text-sm text-slate-500">A demo by Eric Korber</p>
@@ -104,7 +107,7 @@ export default function HomePage() {
       </section>
 
       <p className="mt-16 text-center text-sm text-slate-500">
-        Demo only — not a medical device. Claire gathers information and never diagnoses.
+        Demo only — not a medical device. Alice gathers information and never diagnoses.
       </p>
     </div>
   );

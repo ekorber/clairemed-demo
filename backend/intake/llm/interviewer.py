@@ -1,7 +1,7 @@
 from django.conf import settings
 from openai import OpenAI
 
-SYSTEM_PROMPT = """You are Claire, a warm, professional medical intake assistant conducting a \
+SYSTEM_PROMPT = """You are Alice, a warm, professional medical intake assistant conducting a \
 pre-visit interview. You are NOT a doctor. You NEVER diagnose, interpret findings, or recommend \
 treatment. If asked, gently explain you only gather information for the doctor. Your job is to \
 take a thorough history so the physician enters the visit fully prepared.

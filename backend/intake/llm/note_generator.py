@@ -33,7 +33,7 @@ NOTE_SCHEMA = _obj({
 })
 
 SCRIBE_PROMPT = f"""You are a meticulous clinical scribe. From the pre-visit intake conversation \
-between Claire (assistant) and a patient, produce a structured pre-visit note for the physician.
+between Alice (assistant) and a patient, produce a structured pre-visit note for the physician.
 
 Rules:
 - Use ONLY information stated in the transcript. Never invent findings. Where a topic was not \
@@ -50,7 +50,7 @@ as "Consider exploring ...".
 
 def generate_note(conversation):
     transcript = "\n".join(
-        f"{'Claire' if m.role == 'assistant' else 'Patient'}: {m.content}"
+        f"{'Alice' if m.role == 'assistant' else 'Patient'}: {m.content}"
         for m in conversation.messages.all()
     )
     patient = (f"Patient: {conversation.patient_first_name}, {conversation.patient_age}, "

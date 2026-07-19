@@ -12,7 +12,7 @@ export default function App() {
       <div className="flex min-h-screen flex-col bg-slate-50 text-slate-900">
         <header className="sticky top-0 z-10 border-b border-slate-200 bg-white">
           <div className="mx-auto flex max-w-5xl items-center justify-between px-4 py-3">
-            <Link to="/" className="text-lg font-bold text-teal-700">Claire<span className="text-slate-400">Med demo</span></Link>
+            <Link to="/" className="text-lg font-bold text-teal-700">Alice<span className="text-slate-400"> · a Claire demo</span></Link>
             <nav className="flex gap-1">
               <NavLink to="/" end className={navLink}>Home</NavLink>
               <NavLink to="/chat" className={navLink}>Intake chat</NavLink>

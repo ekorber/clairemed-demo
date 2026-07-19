@@ -22,7 +22,7 @@ export default function ChatPage() {
   if (state.phase === "form" || (state.phase === "starting" && state.messages.length === 0 && !state.streaming))
     return state.phase === "form"
       ? <StartForm onStart={(p) => void start(p)} />
-      : <p className="mt-16 text-center text-slate-500">Connecting you with Claire…</p>;
+      : <p className="mt-16 text-center text-slate-500">Connecting you with Alice…</p>;
 
   const submit = () => {
     const text = input.trim();
@@ -34,7 +34,7 @@ export default function ChatPage() {
   return (
     <div className="mx-auto flex h-[calc(100vh-57px)] max-w-2xl flex-col">
       <div className="flex items-center justify-between border-b border-slate-200 bg-white px-4 py-2">
-        <span className="text-sm font-semibold text-slate-600">Talking with Claire</span>
+        <span className="text-sm font-semibold text-slate-600">Talking with Alice</span>
         <StageIndicator stage={state.stage} />
       </div>
       <div ref={scrollRef} className="flex-1 space-y-3 overflow-y-auto px-4 py-4">
