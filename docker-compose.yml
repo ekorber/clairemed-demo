@@ -16,5 +16,25 @@ services:
       timeout: 3s
       retries: 20
 
+  web:
+    build: ./backend
+    env_file: .env
+    environment:
+      MYSQL_HOST: db
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+
+  nginx:
+    build:
+      context: .
+      dockerfile: nginx/Dockerfile
+    ports:
+      - "80:80"
+    depends_on:
+      - web
+    restart: unless-stopped
+
 volumes:
   dbdata:
