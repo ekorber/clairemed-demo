@@ -3,7 +3,10 @@ import type { ConversationDetail, ConversationSummary, NoteResult } from "./type
 const JSON_HEADERS = { "Content-Type": "application/json" };
 
 async function asJson<T>(res: Response): Promise<T> {
-  if (!res.ok) throw new Error(`request failed (${res.status})`);
+  if (!res.ok) {
+    const detail = (await res.text().catch(() => "")).slice(0, 200);
+    throw new Error(detail || `request failed (${res.status})`);
+  }
   return res.json() as Promise<T>;
 }
 
