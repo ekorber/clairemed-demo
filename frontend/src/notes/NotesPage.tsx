@@ -8,18 +8,25 @@ export default function NotesPage() {
   const { id } = useParams();
   const [conversations, setConversations] = useState<ConversationSummary[] | null>(null);
   const [detail, setDetail] = useState<ConversationDetail | null>(null);
-  const [error, setError] = useState(false);
+  const [listError, setListError] = useState(false);
+  const [detailError, setDetailError] = useState(false);
 
   useEffect(() => {
-    api.fetchConversations().then(setConversations).catch(() => setError(true));
+    api.fetchConversations().then(setConversations).catch(() => setListError(true));
   }, []);
 
   useEffect(() => {
     setDetail(null);
-    if (id) api.fetchConversation(id).then(setDetail).catch(() => setError(true));
+    setDetailError(false);
+    if (!id) return;
+    let stale = false;
+    api.fetchConversation(id)
+      .then((d) => { if (!stale) setDetail(d); })
+      .catch(() => { if (!stale) setDetailError(true); });
+    return () => { stale = true; };
   }, [id]);
 
-  if (error) return <p className="p-8 text-red-600">Couldn't load notes — is the backend running?</p>;
+  if (listError) return <p className="p-8 text-red-600">Couldn't load notes — is the backend running?</p>;
 
   const sidebar = (
     <nav className="divide-y divide-slate-100">
@@ -48,13 +55,19 @@ export default function NotesPage() {
       </aside>
       <section className={`flex-1 overflow-y-auto ${id ? "" : "hidden md:block"}`}>
         {id ? (
-          detail ? (
+          detailError ? (
+            <p className="p-8 text-red-600">Couldn't load this note.</p>
+          ) : detail ? (
             <>
               <Link to="/notes" className="m-4 inline-block text-sm text-teal-700 md:hidden">← All conversations</Link>
               <NoteView detail={detail} />
             </>
-          ) : <p className="p-8 text-slate-400">Loading…</p>
-        ) : <p className="p-8 text-slate-400">Select a conversation to view its note.</p>}
+          ) : (
+            <p className="p-8 text-slate-400">Loading…</p>
+          )
+        ) : (
+          <p className="p-8 text-slate-400">Select a conversation to view its note.</p>
+        )}
       </section>
     </div>
   );
