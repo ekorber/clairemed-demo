@@ -64,4 +64,6 @@ def generate_note(conversation):
         response_format={"type": "json_schema",
                          "json_schema": {"name": "previsit_note", "strict": True, "schema": NOTE_SCHEMA}},
     )
-    return json.loads(response.choices[0].message.content)
+    data = json.loads(response.choices[0].message.content)
+    data["soap"]["objective"] = OBJECTIVE_PLACEHOLDER
+    return data
