@@ -24,7 +24,7 @@ export default function HomePage() {
         <div className="mt-8 flex flex-wrap justify-center gap-3">
           <Link to="/chat" className="rounded-lg bg-teal-600 px-5 py-2.5 font-semibold text-white hover:bg-teal-700">Start a patient intake</Link>
           <Link to="/notes" className="rounded-lg border border-slate-300 bg-white px-5 py-2.5 font-semibold hover:bg-slate-100">View notes</Link>
-          <a href="https://github.com/ekorber/clairemed-demo" className="rounded-lg border border-slate-300 bg-white px-5 py-2.5 font-semibold hover:bg-slate-100">GitHub ↗</a>
+          <a href="https://github.com/ekorber/clairemed-demo" target="_blank" rel="noopener noreferrer" className="rounded-lg border border-slate-300 bg-white px-5 py-2.5 font-semibold hover:bg-slate-100">GitHub ↗</a>
         </div>
       </section>
       <section className="mt-16 grid gap-6 sm:grid-cols-3">
