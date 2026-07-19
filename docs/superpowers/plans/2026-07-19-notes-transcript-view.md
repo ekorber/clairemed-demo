@@ -22,6 +22,15 @@
 - Do not modify `noteText.ts` or the "Copy note" button. The clipboard payload stays note-only by design.
 - Branch is `feat/notes-transcript-view`, already created and holding the spec commit.
 
+**Discovered during Task 1 (plan gap, resolved):** `frontend/src/test-setup.ts` had no global
+`afterEach(cleanup)`, and `vite.config.ts` does not set `test.globals: true`, so
+`@testing-library/react`'s automatic cleanup never self-registered. Rendering the same component
+in more than one test therefore leaked DOM between tests. Task 1's suite fails 2 of 5 tests
+without the hook (`getByText` finds multiple elements). Task 1 consequently also modifies
+`test-setup.ts` to add `afterEach(() => cleanup())`, which is outside its stated file list.
+Verified safe: of the 6 pre-existing test files, only `NoteView.test.tsx` and `NotesPage.test.tsx`
+call `render()`, and neither relies on residual DOM. Full suite green at 7 files / 18 tests.
+
 ---
 
 ### Task 1: Transcript component
