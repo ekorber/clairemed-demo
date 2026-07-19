@@ -77,8 +77,9 @@ children share alignment, then render `<Transcript>` after `<NoteView>`.
 
 ### Changed: `NoteView.tsx`
 
-Drop the outer wrapper div (now owned by `NotesPage`), keeping `space-y-4` on its root. This is
-the only edit. The early return for a missing note is deliberately left untouched.
+Drop the outer wrapper div (now owned by `NotesPage`), keeping `space-y-4` on its root. The
+early-return message also drops its `p-8` class, since `NotesPage` now supplies that padding
+for both children.
 
 ## Behavior decisions
 

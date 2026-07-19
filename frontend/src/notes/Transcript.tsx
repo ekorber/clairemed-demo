@@ -19,7 +19,7 @@ export default function Transcript({
           const isAssistant = m.role === "assistant";
           return (
             <div key={i} className={isAssistant ? "" : "flex flex-col items-end"}>
-              <p className="mb-0.5 text-xs text-slate-400">
+              <p className="mb-0.5 text-xs text-slate-500">
                 {isAssistant ? "Alice" : patientName} · {new Date(m.created_at).toLocaleTimeString()}
               </p>
               <div

@@ -50,4 +50,24 @@ describe("NotesPage", () => {
     expect(await screen.findByText(/isn't ready yet/)).toBeInTheDocument();
     expect(await screen.findByText(/Full conversation \(2 messages\)/)).toBeInTheDocument();
   });
+
+  it("renders the transcript below the note when a note is present", async () => {
+    vi.mocked(api.fetchConversations).mockResolvedValue([
+      { id: "abc", patient_first_name: "Ana", patient_age: 34, patient_sex: "female",
+        status: "complete", chief_complaint_summary: "Chest tightness", has_red_flags: true,
+        created_at: "2026-07-18T12:00:00Z" },
+    ]);
+    vi.mocked(api.fetchConversation).mockResolvedValue(FAKE_DETAIL);
+    render(
+      <MemoryRouter initialEntries={["/notes/abc"]}>
+        <Routes>
+          <Route path="/notes" element={<NotesPage />} />
+          <Route path="/notes/:id" element={<NotesPage />} />
+        </Routes>
+      </MemoryRouter>
+    );
+    const note = await screen.findByText(/Draft SOAP note/);
+    const transcript = screen.getByText(/Full conversation/);
+    expect(note.compareDocumentPosition(transcript)).toBe(Node.DOCUMENT_POSITION_FOLLOWING);
+  });
 });
