@@ -1,4 +1,5 @@
 import json
+import logging
 
 from django.conf import settings
 from django.http import HttpResponseBadRequest, JsonResponse, StreamingHttpResponse
@@ -11,6 +12,8 @@ from .llm.interviewer import get_client, stream_reply
 from .llm.markers import MarkerFilter
 from .models import Conversation, Message
 from .serializers import ConversationDetailSerializer, ConversationSummarySerializer
+
+logger = logging.getLogger(__name__)
 
 MAX_MESSAGE_CHARS = 2000
 
@@ -70,6 +73,7 @@ def _reply_stream(conversation, first_event=None):
                 "interview_complete": marker_filter.complete,
             })
         except Exception:
+            logger.exception("chat stream failed for conversation %s", conversation.id)
             yield _sse({"error": "Claire had trouble replying. Please try again."})
 
     response = StreamingHttpResponse(gen(), content_type="text/event-stream")
@@ -88,13 +92,16 @@ def start_conversation(request):
     if not isinstance(body, dict):
         return HttpResponseBadRequest("request body must be a JSON object")
     try:
-        conversation = Conversation.objects.create(
-            patient_first_name=str(body["first_name"])[:50],
-            patient_age=int(body["age"]),
-            patient_sex=str(body["sex"])[:20],
-        )
+        first_name = str(body["first_name"])[:50]
+        age = int(body["age"])
+        sex = str(body["sex"])[:20]
     except (KeyError, ValueError):
         return HttpResponseBadRequest("first_name, age and sex are required")
+    if not (0 < age < 130):
+        return HttpResponseBadRequest("age must be between 1 and 129")
+    conversation = Conversation.objects.create(
+        patient_first_name=first_name, patient_age=age, patient_sex=sex,
+    )
     return _reply_stream(conversation, first_event={"conversation_id": str(conversation.id)})
 
 
@@ -111,7 +118,9 @@ def send_message(request, pk):
     content = str(body.get("content", "")).strip()
     if not content or len(content) > MAX_MESSAGE_CHARS:
         return HttpResponseBadRequest(f"content must be 1-{MAX_MESSAGE_CHARS} characters")
-    Message.objects.create(conversation=conversation, role=Message.Role.PATIENT, content=content)
+    last = conversation.messages.last()
+    if not (last and last.role == Message.Role.PATIENT and last.content == content):
+        Message.objects.create(conversation=conversation, role=Message.Role.PATIENT, content=content)
     return _reply_stream(conversation)
 
 
@@ -129,6 +138,7 @@ def generate_note_view(request, pk):
     try:
         data = generate_note(conversation)
     except Exception:
+        logger.exception("note generation failed for conversation %s", conversation.id)
         conversation.status = (previous_status if previous_status != Conversation.Status.GENERATING
                                else Conversation.Status.ACTIVE)
         conversation.save(update_fields=["status", "updated_at"])
@@ -158,5 +168,6 @@ def transcribe(request):
             file=(audio.name or "audio.webm", audio.read(), audio.content_type or "audio/webm"),
         )
     except Exception:
+        logger.exception("transcription failed")
         return JsonResponse({"error": "Transcription failed. Please type instead."}, status=502)
     return JsonResponse({"text": result.text})

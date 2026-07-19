@@ -82,3 +82,30 @@ def test_malformed_json_rejected():
     assert Client().post("/api/conversations/start/", data="not json", content_type="application/json").status_code == 400
     assert Client().post(f"/api/conversations/{c.id}/messages/", data="[1, 2]", content_type="application/json").status_code == 400
     assert c.messages.count() == 0
+
+
+def test_retry_after_failure_does_not_duplicate_patient_message():
+    c = Conversation.objects.create(patient_first_name="Ana", patient_age=34, patient_sex="female")
+
+    def boom(conversation, history):
+        raise RuntimeError("api down")
+        yield  # pragma: no cover
+
+    with patch("intake.views.stream_reply", boom):
+        resp = Client().post(f"/api/conversations/{c.id}/messages/",
+                             data=json.dumps({"content": "hello"}), content_type="application/json")
+        events(resp)  # consume the stream
+    with patch("intake.views.stream_reply", fake_stream(["Hi!\n<<STAGE:complaint>>"])):
+        resp = Client().post(f"/api/conversations/{c.id}/messages/",
+                             data=json.dumps({"content": "hello"}), content_type="application/json")
+        events(resp)
+    assert [m.content for m in c.messages.all()] == ["hello", "Hi!"]
+
+
+def test_out_of_range_age_rejected():
+    for bad_age in (-1, 0, 99999):
+        resp = Client().post("/api/conversations/start/",
+                             data=json.dumps({"first_name": "Ana", "age": bad_age, "sex": "female"}),
+                             content_type="application/json")
+        assert resp.status_code == 400, bad_age
+    assert Conversation.objects.count() == 0

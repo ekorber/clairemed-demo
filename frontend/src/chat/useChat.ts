@@ -44,7 +44,7 @@ export function useChat() {
 
   const retryLastSend = useCallback(() => {
     dispatch({ type: "RETRY" });
-    if (!idRef.current) {
+    if (!idRef.current || !lastSentRef.current) {
       if (lastStartRef.current) void start(lastStartRef.current);
       return;
     }
