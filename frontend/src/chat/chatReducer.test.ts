@@ -41,4 +41,12 @@ describe("chatReducer", () => {
     s = reduce(s, { type: "NOTE_READY" });
     expect(s.phase).toBe("done");
   });
+
+  it("GENERATING clears stale error state", () => {
+    let s = reduce(initialChatState, { type: "ERROR", kind: "note", message: "boom" });
+    s = reduce(s, { type: "GENERATING" });
+    expect(s.phase).toBe("generating");
+    expect(s.errorKind).toBeNull();
+    expect(s.error).toBeNull();
+  });
 });

@@ -47,7 +47,7 @@ export function chatReducer(state: ChatState, action: ChatAction): ChatState {
           ? [...state.messages, { role: "assistant", content: state.streaming.trimEnd() }]
           : state.messages };
     case "GENERATING":
-      return { ...state, phase: "generating" };
+      return { ...state, phase: "generating", errorKind: null, error: null };
     case "NOTE_READY":
       return { ...state, phase: "done" };
     case "ERROR":

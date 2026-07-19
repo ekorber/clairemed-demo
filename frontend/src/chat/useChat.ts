@@ -7,6 +7,7 @@ export function useChat() {
   const [state, dispatch] = useReducer(chatReducer, initialChatState);
   const idRef = useRef<string | null>(null);
   const lastSentRef = useRef<string>("");
+  const lastStartRef = useRef<{ firstName: string; age: number; sex: string } | null>(null);
 
   const consume = useCallback(async (res: Response) => {
     for await (const event of readSse(res)) {
@@ -21,6 +22,7 @@ export function useChat() {
   }, []);
 
   const start = useCallback(async (p: { firstName: string; age: number; sex: string }) => {
+    lastStartRef.current = p;
     dispatch({ type: "START" });
     try {
       await consume(await api.startConversation(p));
@@ -42,8 +44,12 @@ export function useChat() {
 
   const retryLastSend = useCallback(() => {
     dispatch({ type: "RETRY" });
+    if (!idRef.current) {
+      if (lastStartRef.current) void start(lastStartRef.current);
+      return;
+    }
     void send(lastSentRef.current, { isRetry: true });
-  }, [send]);
+  }, [send, start]);
 
   const generate = useCallback(async () => {
     if (!idRef.current) return;
