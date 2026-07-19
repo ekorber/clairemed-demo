@@ -12,7 +12,7 @@ mobile.
 
 **Stack:** TypeScript + React (Vite) + Tailwind CSS · Django + Django REST Framework ·
 MySQL 8 · OpenAI (`gpt-5-mini` for chat/notes, `gpt-4o-mini-transcribe` for speech) ·
-single GCP Compute Engine VM in a new `clairemed-demo` GCP project.
+Docker Compose on a single GCP Compute Engine VM in a new `clairemed-demo` GCP project.
 
 ## Goals
 
@@ -149,11 +149,27 @@ Gunicorn runs with `gthread` workers so streaming responses don't starve the wor
 - Guardrails: max patient message length (~2,000 chars), max 25 exchanges, audio uploads
   capped (~2 MB / ~60 s).
 
-### Deployment (GCP)
+### Deployment (GCP, Docker Compose)
 
-- New GCP project `clairemed-demo`, one Compute Engine VM (e.g., `e2-small`, Debian).
-- nginx serves the built SPA and proxies `/api/` to gunicorn (systemd service).
-- MySQL 8 installed on the VM; HTTPS via certbot; OpenAI key in the service environment.
+- New GCP project `clairemed-demo`, one Compute Engine VM (`e2-small`, Debian) with only
+  Docker installed on the host.
+- The stack is a committed `docker-compose.yml` with three services:
+  - `web` — Django + gunicorn (`gthread` workers), built from the repo's Dockerfile.
+  - `db` — MySQL 8 with a named volume for data persistence.
+  - `nginx` — serves the built SPA (baked into the image or a mounted volume from a
+    multi-stage Vite build) and proxies `/api/` to `web`, with proxy buffering disabled
+    for the SSE endpoints.
+- Secrets (OpenAI key, DB credentials, Django secret) live in an uncommitted `.env` read
+  by compose; model names are env-configurable too.
+- Deploying is `git pull && docker compose up -d --build`. HTTPS via certbot (host certbot
+  with certs mounted into the nginx container, or a certbot sidecar).
+
+### Local development
+
+- Native, not containerized, for fast iteration: Vite dev server (proxying `/api`) +
+  `manage.py runserver`, both pointed at the **same MySQL container** started from the
+  compose file (`docker compose up db`). This keeps dev/prod MySQL identical (version,
+  auth plugin, charset) while preserving hot reload.
 
 ## Testing
 
