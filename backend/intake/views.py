@@ -80,7 +80,12 @@ def _reply_stream(conversation, first_event=None):
 @csrf_exempt
 @require_POST
 def start_conversation(request):
-    body = json.loads(request.body)
+    try:
+        body = json.loads(request.body)
+    except json.JSONDecodeError:
+        return HttpResponseBadRequest("request body must be valid JSON")
+    if not isinstance(body, dict):
+        return HttpResponseBadRequest("request body must be a JSON object")
     try:
         conversation = Conversation.objects.create(
             patient_first_name=str(body["first_name"])[:50],
@@ -96,7 +101,12 @@ def start_conversation(request):
 @require_POST
 def send_message(request, pk):
     conversation = get_object_or_404(Conversation, pk=pk, status=Conversation.Status.ACTIVE)
-    body = json.loads(request.body)
+    try:
+        body = json.loads(request.body)
+    except json.JSONDecodeError:
+        return HttpResponseBadRequest("request body must be valid JSON")
+    if not isinstance(body, dict):
+        return HttpResponseBadRequest("request body must be a JSON object")
     content = str(body.get("content", "")).strip()
     if not content or len(content) > MAX_MESSAGE_CHARS:
         return HttpResponseBadRequest(f"content must be 1-{MAX_MESSAGE_CHARS} characters")

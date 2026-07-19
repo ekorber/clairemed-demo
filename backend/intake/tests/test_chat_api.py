@@ -75,3 +75,10 @@ def test_llm_failure_emits_error_event():
             content_type="application/json",
         )
     assert "error" in events(resp)[-1]
+
+
+def test_malformed_json_rejected():
+    c = Conversation.objects.create(patient_first_name="Ana", patient_age=34, patient_sex="female")
+    assert Client().post("/api/conversations/start/", data="not json", content_type="application/json").status_code == 400
+    assert Client().post(f"/api/conversations/{c.id}/messages/", data="[1, 2]", content_type="application/json").status_code == 400
+    assert c.messages.count() == 0
