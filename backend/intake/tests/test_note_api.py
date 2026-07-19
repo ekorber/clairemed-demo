@@ -21,7 +21,7 @@ FAKE_NOTE = {
                        "occupation": "Teacher", "exercise": "Walks", "sleep": "6h", "stress": "Moderate"},
     "review_of_systems": {"positives": ["fatigue"], "negatives": ["no fever"]},
     "soap": {"subjective": "Two weeks of exertional chest tightness.",
-             "objective": "To be completed at visit — no examination performed during pre-visit intake.",
+             "objective": "To be completed at visit. No examination performed during pre-visit intake.",
              "assessment": ["Consider exploring cardiac risk factors"],
              "plan": ["Ask about palpitations", "Baseline ECG if indicated"]},
     "patient_quotes": ["like a band around my chest"],

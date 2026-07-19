@@ -54,7 +54,7 @@ export default function MicButton({ disabled, onTranscript }: { disabled: boolea
   };
 
   const labels: Record<MicState, string> = {
-    idle: "Speak your answer", recording: "Stop recording", busy: "Transcribing…", error: "Mic unavailable — please type",
+    idle: "Speak your answer", recording: "Stop recording", busy: "Transcribing…", error: "Mic unavailable, please type",
   };
   return (
     <button

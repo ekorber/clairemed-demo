@@ -26,7 +26,7 @@ export default function NotesPage() {
     return () => { stale = true; };
   }, [id]);
 
-  if (listError) return <p className="p-8 text-red-600">Couldn't load notes — is the backend running?</p>;
+  if (listError) return <p className="p-8 text-red-600">Couldn't load notes. Is the backend running?</p>;
 
   const sidebar = (
     <nav className="divide-y divide-slate-100">

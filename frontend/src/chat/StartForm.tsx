@@ -13,7 +13,7 @@ export default function StartForm({ onStart }: { onStart: (p: { firstName: strin
     >
       <div>
         <h1 className="text-xl font-bold">Pre-visit intake</h1>
-        <p className="mt-1 text-sm text-slate-500">Alice will ask a few questions so your doctor is prepared. This is a demo — please don't enter real personal health information.</p>
+        <p className="mt-1 text-sm text-slate-500">Alice will ask a few questions so your doctor is prepared. This is a demo, so please don't enter real personal health information.</p>
       </div>
       <label className="block text-sm font-medium">First name
         <input className={field} value={firstName} onChange={(e) => setFirstName(e.target.value)} maxLength={50} autoFocus />

@@ -52,7 +52,7 @@ export default function ChatPage() {
         {state.phase === "generating" && <p className="text-center text-sm text-slate-500">Drafting your pre-visit summary…</p>}
         {state.phase === "done" && (
           <div className="rounded-xl border border-teal-200 bg-teal-50 p-4 text-center">
-            <p className="font-medium text-teal-800">All done — thank you!</p>
+            <p className="font-medium text-teal-800">All done. Thank you!</p>
             <Link to={`/notes/${state.conversationId}`} className="mt-2 inline-block rounded-lg bg-teal-600 px-4 py-2 text-sm font-semibold text-white">View the note</Link>
           </div>
         )}

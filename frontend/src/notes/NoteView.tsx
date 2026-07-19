@@ -22,7 +22,7 @@ export default function NoteView({ detail }: { detail: ConversationDetail }) {
   const patientLine = `${detail.patient_first_name}, ${detail.patient_age}, ${detail.patient_sex}`;
 
   if (!note)
-    return <p className="p-8 text-slate-500">This note isn't ready yet — the interview may still be in progress.</p>;
+    return <p className="p-8 text-slate-500">This note isn't ready yet. The interview may still be in progress.</p>;
 
   const copy = async () => {
     await navigator.clipboard.writeText(noteToText(note, patientLine));
@@ -57,7 +57,7 @@ export default function NoteView({ detail }: { detail: ConversationDetail }) {
       </Card>
       <div className="grid gap-4 sm:grid-cols-2">
         <Card title="Allergies">
-          <List items={note.allergies.map((a) => `${a.substance} — ${a.reaction} (${a.severity})`)} />
+          <List items={note.allergies.map((a) => `${a.substance} - ${a.reaction} (${a.severity})`)} />
         </Card>
         <Card title="Current medications">
           <List items={note.medications.map((m) => `${m.name} ${m.dose}, ${m.frequency}`)} />
@@ -82,7 +82,7 @@ export default function NoteView({ detail }: { detail: ConversationDetail }) {
         <div className="space-y-3">
           <div><p className="font-semibold">Subjective</p><p>{note.soap.subjective}</p></div>
           <div><p className="font-semibold">Objective</p><p className="text-slate-500">{note.soap.objective}</p></div>
-          <div><p className="font-semibold">Assessment <span className="font-normal text-slate-400">(areas to explore — not diagnoses)</span></p><List items={note.soap.assessment} /></div>
+          <div><p className="font-semibold">Assessment <span className="font-normal text-slate-400">(areas to explore, not diagnoses)</span></p><List items={note.soap.assessment} /></div>
           <div><p className="font-semibold">Plan</p><List items={note.soap.plan} /></div>
         </div>
       </Card>

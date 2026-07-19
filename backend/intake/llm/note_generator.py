@@ -4,7 +4,7 @@ from django.conf import settings
 
 from .interviewer import get_client
 
-OBJECTIVE_PLACEHOLDER = "To be completed at visit — no examination performed during pre-visit intake."
+OBJECTIVE_PLACEHOLDER = "To be completed at visit. No examination performed during pre-visit intake."
 
 
 def _arr(items="string"):
@@ -41,10 +41,11 @@ discussed, use an empty array or the string "Not discussed".
 - patient_quotes: short verbatim phrases the patient used for key symptoms.
 - red_flags: urgent or concerning symptom patterns surfaced in the interview (empty if none).
 - soap.objective must be exactly: "{OBJECTIVE_PLACEHOLDER}"
-- soap.assessment: themes and areas for the physician to explore — NOT diagnoses. Phrase each \
+- soap.assessment: themes and areas for the physician to explore, NOT diagnoses. Phrase each \
 as "Consider exploring ...".
 - soap.plan: concrete suggested follow-up questions and checks for the visit.
 - hpi_narrative: one short paragraph, third person, plain prose.
+- Never use em dashes anywhere in the note. Use commas, colons, or periods instead.
 - summary_one_liner: at most 60 characters, e.g. "Chest tightness on exertion, 2 wks"."""
 
 

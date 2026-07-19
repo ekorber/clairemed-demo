@@ -8,7 +8,7 @@ describe("NoteView", () => {
     render(<NoteView detail={FAKE_DETAIL} />);
     expect(screen.getByText(/red flags/i)).toBeInTheDocument();
     expect(screen.getByText(/Chest pain with exertion/)).toBeInTheDocument();
-    expect(screen.getByText(/Penicillin — rash \(mild\)/)).toBeInTheDocument();
+    expect(screen.getByText(/Penicillin - rash \(mild\)/)).toBeInTheDocument();
     expect(screen.getByText(/Lisinopril 10 mg, daily/)).toBeInTheDocument();
     expect(screen.getByText(/like a band around my chest/)).toBeInTheDocument();
     expect(screen.getByText(/To be completed at visit/)).toBeInTheDocument();

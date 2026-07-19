@@ -3,19 +3,19 @@ import { Link } from "react-router-dom";
 const features = [
   {
     title: "Conversational AI Intake",
-    body: "Alice interviews the patient before the visit — one question at a time, streamed token-by-token, adapting every follow-up to the previous answer. The interview follows the structure clinicians actually use (OLDCARTS for the presenting complaint), and patients can speak instead of type: tap the mic, review the transcript, then send.",
+    body: "Alice interviews the patient before the visit, one question at a time, streaming each reply as it is written and adapting every follow-up to the previous answer. The interview follows the structure clinicians use in practice (OLDCARTS for the presenting complaint), and patients can speak instead of typing: tap the mic, review the transcript, then send.",
   },
   {
     title: "Red-Flag Screening",
-    body: "Alice screens for danger signs specific to the complaint — chest pain prompts questions about breathlessness and radiating pain, headaches about sudden onset and vision changes. Anything concerning is surfaced at the top of the note and badged in the sidebar. Alice gathers information only; she never diagnoses, and says so if asked.",
+    body: "Alice screens for danger signs specific to the complaint: chest pain prompts questions about breathlessness and radiating pain, headaches about sudden onset and vision changes. Anything concerning is surfaced at the top of the note and badged in the sidebar. Alice gathers information only. She never diagnoses, and says so if asked.",
   },
   {
     title: "Structured History Capture",
-    body: "Answers are organized into chief complaint, history of present illness, medications with doses, allergies with reactions, family and social history, and a review of systems — with the patient's own words preserved as quotes so the physician hears the story, not a paraphrase.",
+    body: "Answers are organized into chief complaint, history of present illness, medications with doses, allergies with reactions, family and social history, and a review of systems, with the patient's own words preserved as quotes so the physician hears the story rather than a paraphrase.",
   },
   {
     title: "Draft SOAP Notes",
-    body: "Moments after the interview ends, a decision-ready SOAP note is drafted: subjective filled in from intake, objective left for the visit, assessment framed strictly as areas to explore, and a plan of suggested follow-up questions. One click copies the full note as clean plain text — EMR-agnostic by design.",
+    body: "Moments after the interview ends, a draft SOAP note is ready for review: subjective filled in from intake, objective left for the visit, assessment framed strictly as areas to explore, and a plan of suggested follow-up questions. One click copies the full note as plain text for pasting into any EMR.",
   },
 ];
 
@@ -30,11 +30,11 @@ const architecture = [
   },
   {
     title: "AI Layer",
-    body: "OpenAI gpt-5-mini powers the interviewer — a clinical system prompt with a hidden stage-marker protocol that tracks interview progress — and drafts the note via Structured Outputs against a strict JSON schema. gpt-4o-mini-transcribe handles speech input.",
+    body: "OpenAI gpt-5-mini powers the interviewer, using a clinical system prompt with a hidden stage-marker protocol that tracks interview progress, and drafts the note via Structured Outputs against a strict JSON schema. gpt-4o-mini-transcribe handles speech input.",
   },
   {
     title: "Infra",
-    body: "Docker Compose runs the whole stack — nginx serving the built SPA and proxying the API (buffering off, so streams actually stream), gunicorn, and MySQL — on a single GCP Compute Engine VM behind HTTPS.",
+    body: "Docker Compose runs the whole stack on a single GCP Compute Engine VM behind HTTPS: nginx serves the built SPA and proxies the API with buffering disabled so streams arrive in real time, in front of gunicorn and MySQL.",
   },
 ];
 
@@ -46,7 +46,7 @@ const nextSteps = [
   { title: "Analytics Dashboard", body: "Intakes completed, documentation time saved, red-flag rates, and after-hours charting reduction." },
   { title: "Voice-First Mode", body: "A fully spoken interview with text-to-speech replies for patients who prefer talking to typing." },
   { title: "Multi-Language Intake", body: "Interview patients in their own language and deliver the note in the clinic's." },
-  { title: "Specialty Templates", body: "Tailored question flows and note formats per specialty — pediatrics, cardiology, mental health." },
+  { title: "Specialty Templates", body: "Tailored question flows and note formats per specialty: pediatrics, cardiology, mental health." },
 ];
 
 export default function HomePage() {
@@ -54,15 +54,16 @@ export default function HomePage() {
     <div className="mx-auto max-w-5xl px-4 py-12">
       <section className="text-center">
         <h1 className="text-5xl font-extrabold tracking-tight text-teal-600 sm:text-6xl">Alice</h1>
-        <p className="mt-3 text-lg font-medium text-slate-700">
-          A demo for Claire (<a href="https://clairemed.ai" target="_blank" rel="noopener noreferrer" className="text-teal-700 underline hover:text-teal-800">clairemed.ai</a>)
-        </p>
         <p className="mx-auto mt-4 max-w-2xl text-lg text-slate-600">
-          Alice recreates Claire's core loop: she interviews the patient before the visit,
-          captures a structured medical history, flags what's urgent, and drafts the clinical
-          note — so the physician walks in prepared and walks out with documentation nearly done.
+          Alice is an AI intake assistant for outpatient clinics. She interviews patients before
+          their visit, captures a structured medical history, flags anything urgent, and drafts
+          the clinical note, so the physician walks in prepared and walks out with the
+          documentation nearly done.
         </p>
-        <p className="mt-4 text-sm text-slate-500">A demo by Eric Korber</p>
+        <p className="mt-4 text-sm text-slate-500">
+          A demo by Eric Korber for{" "}
+          <a href="https://clairemed.ai" target="_blank" rel="noopener noreferrer" className="font-medium text-teal-700 underline hover:text-teal-800">Claire</a>
+        </p>
         <div className="mt-8 flex flex-wrap justify-center gap-3">
           <Link to="/chat" className="rounded-lg bg-teal-600 px-5 py-2.5 font-semibold text-white hover:bg-teal-700">Start a patient intake</Link>
           <Link to="/notes" className="rounded-lg border border-slate-300 bg-white px-5 py-2.5 font-semibold hover:bg-slate-100">View notes</Link>
@@ -107,7 +108,7 @@ export default function HomePage() {
       </section>
 
       <p className="mt-16 text-center text-sm text-slate-500">
-        Demo only — not a medical device. Alice gathers information and never diagnoses.
+        Demo only, not a medical device. Alice gathers information and never diagnoses.
       </p>
     </div>
   );
