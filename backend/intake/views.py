@@ -112,3 +112,31 @@ def send_message(request, pk):
         return HttpResponseBadRequest(f"content must be 1-{MAX_MESSAGE_CHARS} characters")
     Message.objects.create(conversation=conversation, role=Message.Role.PATIENT, content=content)
     return _reply_stream(conversation)
+
+
+from .llm.note_generator import generate_note
+from .models import Note
+
+
+@csrf_exempt
+@require_POST
+def generate_note_view(request, pk):
+    conversation = get_object_or_404(Conversation, pk=pk)
+    previous_status = conversation.status
+    conversation.status = Conversation.Status.GENERATING
+    conversation.save(update_fields=["status", "updated_at"])
+    try:
+        data = generate_note(conversation)
+    except Exception:
+        conversation.status = (previous_status if previous_status != Conversation.Status.GENERATING
+                               else Conversation.Status.ACTIVE)
+        conversation.save(update_fields=["status", "updated_at"])
+        return JsonResponse({"error": "Note generation failed. Please retry."}, status=502)
+    red_flags = data.get("red_flags", [])
+    Note.objects.update_or_create(conversation=conversation,
+                                  defaults={"data": data, "red_flags": red_flags})
+    conversation.status = Conversation.Status.COMPLETE
+    conversation.chief_complaint_summary = data.get("summary_one_liner", "")[:200]
+    conversation.has_red_flags = bool(red_flags)
+    conversation.save(update_fields=["status", "chief_complaint_summary", "has_red_flags", "updated_at"])
+    return JsonResponse({"data": data, "red_flags": red_flags})

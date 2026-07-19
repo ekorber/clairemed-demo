@@ -8,4 +8,5 @@ urlpatterns = [
     path("conversations/<uuid:pk>/", views.ConversationDetailView.as_view()),
     path("conversations/start/", views.start_conversation),
     path("conversations/<uuid:pk>/messages/", views.send_message),
+    path("conversations/<uuid:pk>/generate-note/", views.generate_note_view),
 ]
