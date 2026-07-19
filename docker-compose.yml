@@ -1,0 +1,40 @@
+services:
+  db:
+    image: mysql:8
+    environment:
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-clairemed}
+      MYSQL_USER: ${MYSQL_USER:-clairemed}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-clairemed-dev}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root-dev}
+    ports:
+      - "127.0.0.1:3306:3306"
+    volumes:
+      - dbdata:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-p${MYSQL_ROOT_PASSWORD:-root-dev}"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  web:
+    build: ./backend
+    env_file: .env
+    environment:
+      MYSQL_HOST: db
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+
+  nginx:
+    build:
+      context: .
+      dockerfile: nginx/Dockerfile
+    ports:
+      - "80:80"
+    depends_on:
+      - web
+    restart: unless-stopped
+
+volumes:
+  dbdata:
