@@ -31,6 +31,12 @@ export const api = {
   async fetchConversation(id: string): Promise<ConversationDetail> {
     return asJson(await fetch(`/api/conversations/${id}/`));
   },
+  // Not asJson: a successful delete answers 204 with no body to parse.
+  async deleteConversation(id: string): Promise<void> {
+    const res = await fetch(`/api/conversations/${id}/`, { method: "DELETE" });
+    if (res.status === 404) throw new Error("This conversation no longer exists.");
+    if (!res.ok) throw new Error(`request failed (${res.status})`);
+  },
   async transcribe(blob: Blob): Promise<string> {
     const form = new FormData();
     form.append("audio", blob, "clip.webm");

@@ -6,7 +6,7 @@ from django.http import HttpResponseBadRequest, JsonResponse, StreamingHttpRespo
 from django.shortcuts import get_object_or_404
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
-from rest_framework.generics import ListAPIView, RetrieveAPIView
+from rest_framework.generics import ListAPIView, RetrieveDestroyAPIView
 
 from .llm.interviewer import get_client, stream_reply
 from .llm.markers import MarkerFilter
@@ -27,7 +27,13 @@ class ConversationListView(ListAPIView):
     serializer_class = ConversationSummarySerializer
 
 
-class ConversationDetailView(RetrieveAPIView):
+class ConversationDetailView(RetrieveDestroyAPIView):
+    """GET returns the conversation with its messages and note.
+
+    DELETE removes it entirely. Messages and the note cascade from the model
+    definitions, so no explicit cleanup is needed here.
+    """
+
     queryset = Conversation.objects.prefetch_related("messages")
     serializer_class = ConversationDetailSerializer
 
