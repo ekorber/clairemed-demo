@@ -1,12 +1,14 @@
 import { useEffect, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { api } from "../api/client";
 import type { ConversationDetail, ConversationSummary } from "../api/types";
+import DeleteConversation from "./DeleteConversation";
 import NoteView from "./NoteView";
 import Transcript from "./Transcript";
 
 export default function NotesPage() {
   const { id } = useParams();
+  const navigate = useNavigate();
   const [conversations, setConversations] = useState<ConversationSummary[] | null>(null);
   const [detail, setDetail] = useState<ConversationDetail | null>(null);
   const [listError, setListError] = useState(false);
@@ -28,6 +30,13 @@ export default function NotesPage() {
   }, [id]);
 
   if (listError) return <p className="p-8 text-red-600">Couldn't load notes. Is the backend running?</p>;
+
+  // Drop it locally rather than refetching: the list is already in state and the
+  // server has confirmed the delete.
+  const handleDeleted = (deletedId: string) => {
+    setConversations((cs) => cs?.filter((c) => c.id !== deletedId) ?? cs);
+    navigate("/notes");
+  };
 
   const sidebar = (
     <nav className="divide-y divide-slate-100">
@@ -63,6 +72,13 @@ export default function NotesPage() {
               <Link to="/notes" className="inline-block text-sm text-teal-700 md:hidden">← All conversations</Link>
               <NoteView detail={detail} />
               <Transcript messages={detail.messages} patientName={detail.patient_first_name} />
+              <div className="flex justify-end border-t border-slate-200 pt-4">
+                <DeleteConversation
+                  id={detail.id}
+                  patientName={detail.patient_first_name}
+                  onDeleted={() => handleDeleted(detail.id)}
+                />
+              </div>
             </div>
           ) : (
             <p className="p-8 text-slate-400">Loading…</p>
