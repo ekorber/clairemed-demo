@@ -8,11 +8,11 @@ import { useChat } from "./useChat";
 export default function ChatPage() {
   const { state, start, send, retryLastSend, generate } = useChat();
   const [input, setInput] = useState("");
-  const [recording, setRecording] = useState(false);
+  const [micActive, setMicActive] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const busy = state.phase !== "idle" || state.interviewComplete;
   // Only while answering the very first question, so it teaches once and gets out of the way.
-  const showVoiceHint = state.messages.length <= 1 && !input && !recording;
+  const showVoiceHint = state.messages.length <= 1 && !input && !micActive;
 
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
@@ -77,10 +77,10 @@ export default function ChatPage() {
           <div className="flex items-end gap-2">
             <MicButton
               disabled={busy}
-              onRecordingChange={setRecording}
+              onActiveChange={setMicActive}
               onTranscript={(text) => setInput((v) => (v ? v + " " : "") + text)}
             />
-            {!recording && (
+            {!micActive && (
               <>
                 <textarea
                   className="max-h-32 flex-1 resize-none rounded-xl border border-slate-300 px-3 py-2 focus:border-teal-500 focus:outline-none"

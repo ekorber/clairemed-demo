@@ -15,11 +15,12 @@ const clock = (ms: number) => {
 export default function MicButton({
   disabled,
   onTranscript,
-  onRecordingChange,
+  onActiveChange,
 }: {
   disabled: boolean;
   onTranscript: (text: string) => void;
-  onRecordingChange?: (recording: boolean) => void;
+  /** Fires when the mic takes over the input row, i.e. while recording or transcribing. */
+  onActiveChange?: (active: boolean) => void;
 }) {
   const [micState, setMicState] = useState<MicState>("idle");
   const [elapsed, setElapsed] = useState(0);
@@ -47,8 +48,10 @@ export default function MicButton({
     }
   }, []);
 
-  useEffect(() => onRecordingChange?.(micState === "recording"),
-    [micState, onRecordingChange]);
+  // The error state deliberately does not count as active: it tells the patient to type
+  // instead, so the textarea has to stay on screen.
+  useEffect(() => onActiveChange?.(micState === "recording" || micState === "busy"),
+    [micState, onActiveChange]);
 
   if (typeof MediaRecorder === "undefined" || !navigator.mediaDevices?.getUserMedia) return null;
 
@@ -141,27 +144,28 @@ export default function MicButton({
 
   if (micState === "recording") {
     return (
-      <div className="flex flex-1 items-center gap-3 rounded-xl border border-red-300 bg-red-50 px-3 py-2">
-        <span className="h-2.5 w-2.5 shrink-0 animate-pulse rounded-full bg-red-600" />
-        <span className="shrink-0 font-mono text-sm tabular-nums text-red-900">
+      <div className="flex flex-1 items-center gap-3 rounded-xl border border-slate-300 bg-slate-50 px-3 py-2">
+        {/* Red is reserved for this dot alone: it means "recording is live", never "discard". */}
+        <span className="h-2.5 w-2.5 shrink-0 animate-pulse rounded-full bg-red-600" aria-hidden="true" />
+        <span className="shrink-0 font-mono text-sm tabular-nums text-slate-700">
           {clock(elapsed)} / {clock(MAX_RECORD_MS)}
         </span>
         <span className="flex flex-1 items-center gap-1" aria-hidden="true">
           {Array.from({ length: BARS }, (_, i) => (
             <span
               key={i}
-              className="w-1 rounded-full bg-red-400 transition-[height] duration-100"
+              className="w-1 rounded-full bg-teal-500 transition-[height] duration-100"
               style={{ height: `${4 + (level > i / BARS ? 12 : 0)}px` }}
             />
           ))}
         </span>
         <button type="button" onClick={cancel}
-          className="shrink-0 rounded-lg px-2 py-1 text-sm font-medium text-slate-600 hover:bg-white">
+          className="shrink-0 rounded-lg px-3 py-2 text-sm font-medium text-slate-600 hover:bg-white">
           Cancel
         </button>
         <button type="button" onClick={stop}
-          className="shrink-0 rounded-lg bg-red-600 px-3 py-1 text-sm font-semibold text-white">
-          Stop
+          className="shrink-0 rounded-lg bg-teal-600 px-4 py-2 text-sm font-semibold text-white hover:bg-teal-700">
+          Done
         </button>
       </div>
     );
@@ -169,9 +173,12 @@ export default function MicButton({
 
   if (micState === "busy")
     return (
-      <span className="flex shrink-0 items-center gap-2 rounded-xl border border-slate-300 px-3 py-2 text-sm text-slate-500">
-        Transcribing…
-      </span>
+      <div role="status" aria-live="polite"
+        className="flex flex-1 items-center gap-3 rounded-xl border border-slate-300 bg-slate-50 px-3 py-2">
+        <span aria-hidden="true"
+          className="h-4 w-4 shrink-0 animate-spin rounded-full border-2 border-slate-300 border-t-teal-600" />
+        <span className="text-sm italic text-slate-500">Turning your recording into text…</span>
+      </div>
     );
 
   if (micState === "error")
