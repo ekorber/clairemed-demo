@@ -29,6 +29,9 @@ export interface ConversationSummary {
   status: "active" | "generating" | "complete" | "abandoned";
   chief_complaint_summary: string;
   has_red_flags: boolean;
+  /** Alice escalated to emergency or crisis care during the interview. Set live, so it
+   *  is present even when the interview was abandoned and no note exists. */
+  emergency_flagged: boolean;
   created_at: string;
 }
 

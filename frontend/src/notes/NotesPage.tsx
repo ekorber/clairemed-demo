@@ -48,9 +48,16 @@ export default function NotesPage() {
           className={`block px-4 py-3 hover:bg-slate-50 ${c.id === id ? "bg-teal-50" : ""}`}>
           <div className="flex items-center justify-between gap-2">
             <span className="font-medium">{c.patient_first_name}</span>
-            {c.has_red_flags && <span className="rounded-full bg-red-100 px-2 py-0.5 text-xs font-semibold text-red-700">⚠ red flag</span>}
+            <span className="flex shrink-0 gap-1">
+              {c.emergency_flagged && <span className="rounded-full bg-red-600 px-2 py-0.5 text-xs font-semibold text-white">🚨 emergency</span>}
+              {c.has_red_flags && <span className="rounded-full bg-red-100 px-2 py-0.5 text-xs font-semibold text-red-700">⚠ red flag</span>}
+            </span>
           </div>
-          <p className="truncate text-sm text-slate-600">{c.chief_complaint_summary || "Interview in progress…"}</p>
+          <p className="truncate text-sm text-slate-600">
+            {c.emergency_flagged && !c.chief_complaint_summary
+              ? "Told to seek emergency care, interview not finished"
+              : c.chief_complaint_summary || "Interview in progress…"}
+          </p>
           <p className="text-xs text-slate-400">{new Date(c.created_at).toLocaleString()}</p>
         </Link>
       ))}

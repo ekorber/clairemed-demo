@@ -129,11 +129,13 @@ describe("MicButton", () => {
 
     render(<MicButton disabled={false} onTranscript={vi.fn()} onActiveChange={onActiveChange} />);
     await startRecording();
-    expect(onActiveChange).toHaveBeenLastCalledWith(true);
+    // onActiveChange fires from an effect, so it can lag the button appearing. Asserting
+    // it synchronously passed alone but failed under parallel load in the full suite.
+    await waitFor(() => expect(onActiveChange).toHaveBeenLastCalledWith(true));
 
     fireEvent.click(screen.getByRole("button", { name: /done/i }));
     await screen.findByRole("status");
-    expect(onActiveChange).toHaveBeenLastCalledWith(true); // still owns the input row
+    await waitFor(() => expect(onActiveChange).toHaveBeenLastCalledWith(true)); // still owns the row
 
     await act(async () => { release("transcribed text"); });
     await waitFor(() => expect(onActiveChange).toHaveBeenLastCalledWith(false));

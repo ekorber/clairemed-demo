@@ -14,7 +14,7 @@ describe("NotesPage", () => {
   it("keeps the sidebar when only the detail fetch fails", async () => {
     vi.mocked(api.fetchConversations).mockResolvedValue([
       { id: "abc", patient_first_name: "Ana", patient_age: 34, patient_sex: "female",
-        status: "complete", chief_complaint_summary: "Chest tightness", has_red_flags: true,
+        status: "complete", chief_complaint_summary: "Chest tightness", has_red_flags: true, emergency_flagged: false,
         created_at: "2026-07-18T12:00:00Z" },
     ]);
     vi.mocked(api.fetchConversation).mockRejectedValue(new Error("404"));
@@ -33,7 +33,7 @@ describe("NotesPage", () => {
   it("shows the transcript even when the note isn't ready", async () => {
     vi.mocked(api.fetchConversations).mockResolvedValue([
       { id: "abc", patient_first_name: "Ana", patient_age: 34, patient_sex: "female",
-        status: "active", chief_complaint_summary: "", has_red_flags: false,
+        status: "active", chief_complaint_summary: "", has_red_flags: false, emergency_flagged: false,
         created_at: "2026-07-18T12:00:00Z" },
     ]);
     vi.mocked(api.fetchConversation).mockResolvedValue({
@@ -54,7 +54,7 @@ describe("NotesPage", () => {
   it("renders the transcript below the note when a note is present", async () => {
     vi.mocked(api.fetchConversations).mockResolvedValue([
       { id: "abc", patient_first_name: "Ana", patient_age: 34, patient_sex: "female",
-        status: "complete", chief_complaint_summary: "Chest tightness", has_red_flags: true,
+        status: "complete", chief_complaint_summary: "Chest tightness", has_red_flags: true, emergency_flagged: false,
         created_at: "2026-07-18T12:00:00Z" },
     ]);
     vi.mocked(api.fetchConversation).mockResolvedValue(FAKE_DETAIL);
@@ -71,13 +71,49 @@ describe("NotesPage", () => {
     expect(note.compareDocumentPosition(transcript)).toBe(Node.DOCUMENT_POSITION_FOLLOWING);
   });
 
+  it("surfaces an abandoned emergency in the sidebar despite having no note", async () => {
+    // The whole point of emergency_flagged: this conversation never reached note
+    // generation, so has_red_flags is false and there is no summary to show.
+    vi.mocked(api.fetchConversations).mockResolvedValue([
+      { id: "abc", patient_first_name: "Ernie", patient_age: 62, patient_sex: "male",
+        status: "active", chief_complaint_summary: "", has_red_flags: false,
+        emergency_flagged: true, created_at: "2026-07-18T12:00:00Z" },
+    ]);
+    render(
+      <MemoryRouter initialEntries={["/notes"]}>
+        <Routes><Route path="/notes" element={<NotesPage />} /></Routes>
+      </MemoryRouter>
+    );
+
+    // Match the badge exactly: /emergency/i alone also hits the description line below it.
+    expect(await screen.findByText("🚨 emergency")).toBeInTheDocument();
+    expect(screen.getByText(/told to seek emergency care/i)).toBeInTheDocument();
+    expect(screen.queryByText(/interview in progress/i)).not.toBeInTheDocument();
+  });
+
+  it("shows no emergency badge for an ordinary unfinished interview", async () => {
+    vi.mocked(api.fetchConversations).mockResolvedValue([
+      { id: "abc", patient_first_name: "Ana", patient_age: 34, patient_sex: "female",
+        status: "active", chief_complaint_summary: "", has_red_flags: false,
+        emergency_flagged: false, created_at: "2026-07-18T12:00:00Z" },
+    ]);
+    render(
+      <MemoryRouter initialEntries={["/notes"]}>
+        <Routes><Route path="/notes" element={<NotesPage />} /></Routes>
+      </MemoryRouter>
+    );
+
+    expect(await screen.findByText(/interview in progress/i)).toBeInTheDocument();
+    expect(screen.queryByText(/emergency/i)).not.toBeInTheDocument();
+  });
+
   it("removes the entry from the sidebar once it is deleted", async () => {
     vi.mocked(api.fetchConversations).mockResolvedValue([
       { id: "abc", patient_first_name: "Ana", patient_age: 34, patient_sex: "female",
-        status: "complete", chief_complaint_summary: "Chest tightness", has_red_flags: true,
+        status: "complete", chief_complaint_summary: "Chest tightness", has_red_flags: true, emergency_flagged: false,
         created_at: "2026-07-18T12:00:00Z" },
       { id: "xyz", patient_first_name: "Bo", patient_age: 50, patient_sex: "male",
-        status: "complete", chief_complaint_summary: "Cough", has_red_flags: false,
+        status: "complete", chief_complaint_summary: "Cough", has_red_flags: false, emergency_flagged: false,
         created_at: "2026-07-18T13:00:00Z" },
     ]);
     vi.mocked(api.fetchConversation).mockResolvedValue(FAKE_DETAIL);

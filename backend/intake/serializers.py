@@ -4,7 +4,7 @@ from .models import Conversation, Message, Note
 
 SUMMARY_FIELDS = [
     "id", "patient_first_name", "patient_age", "patient_sex",
-    "status", "chief_complaint_summary", "has_red_flags", "created_at",
+    "status", "chief_complaint_summary", "has_red_flags", "emergency_flagged", "created_at",
 ]
 
 

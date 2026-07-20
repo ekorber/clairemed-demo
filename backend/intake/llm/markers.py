@@ -1,6 +1,6 @@
 import re
 
-MARKER_RE = re.compile(r"<<STAGE:([a-z_]+)>>|<<COMPLETE>>")
+MARKER_RE = re.compile(r"<<STAGE:([a-z_]+)>>|<<COMPLETE>>|<<URGENT>>")
 MAX_MARKER_LEN = 24  # longest marker is <<STAGE:...>>; beyond this it's not a marker
 
 DASH_RE = re.compile(r"[ \t]*[—–][ \t]*")
@@ -35,6 +35,7 @@ class MarkerFilter:
         self._last_char = ""
         self.stage = None
         self.complete = False
+        self.urgent = False
 
     def _emit(self, text: str) -> str:
         text = normalise_dashes(text)
@@ -46,8 +47,11 @@ class MarkerFilter:
         return text
 
     def _apply(self, match):
-        if match.group(0) == "<<COMPLETE>>":
+        token = match.group(0)
+        if token == "<<COMPLETE>>":
             self.complete = True
+        elif token == "<<URGENT>>":
+            self.urgent = True
         else:
             self.stage = match.group(1)
 

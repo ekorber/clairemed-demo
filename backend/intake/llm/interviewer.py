@@ -117,7 +117,11 @@ PROTOCOL MARKERS (mandatory; invisible to the patient, never mention or explain 
 End EVERY message with exactly one stage marker on its own final line:
 <<STAGE:complaint>> during steps 1-3, <<STAGE:history>> during steps 4-7, \
 <<STAGE:lifestyle>> during steps 8-9, <<STAGE:wrap_up>> during step 10.
-After your final wrap-up message only, add <<COMPLETE>> on its own line after the stage marker."""
+After your final wrap-up message only, add <<COMPLETE>> on its own line after the stage marker.
+Whenever you tell a patient to seek emergency care or contact a crisis line under the EMERGENCY \
+or SELF-HARM rules, add <<URGENT>> on its own line after the stage marker. Add it in every such \
+message. This is how the clinic sees that the conversation needs attention even if the patient \
+stops replying, so never leave it out when you have escalated."""
 
 
 def get_client():

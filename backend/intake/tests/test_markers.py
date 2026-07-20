@@ -75,3 +75,27 @@ def test_comma_then_dash_across_chunks_does_not_double_up():
     # done within a single chunk. Seen live as "or risk,  I'm only gathering".
     out, _ = run(["I can note that for the doctor,", " — I only gather information."])
     assert out == "I can note that for the doctor, I only gather information."
+
+
+def test_urgent_marker_sets_flag_and_is_hidden():
+    out, f = run(["Call your local emergency number now.\n<<STAGE:complaint>>\n<<URGENT>>"])
+    assert out == "Call your local emergency number now."
+    assert f.urgent is True
+    assert f.stage == "complaint"
+
+
+def test_urgent_defaults_to_false():
+    _, f = run(["When did it start?\n<<STAGE:complaint>>"])
+    assert f.urgent is False
+
+
+def test_urgent_marker_split_across_chunks():
+    out, f = run(["Get emergency care now.\n<<URG", "ENT>>"])
+    assert out == "Get emergency care now."
+    assert f.urgent is True
+
+
+def test_near_miss_marker_does_not_set_flag():
+    # Assert the parse is exact so lookalike text cannot silently set the flag.
+    _, f = run(["Someone wrote <<URGENTLY>> in their message."])
+    assert f.urgent is False
