@@ -20,7 +20,7 @@ export const FAKE_NOTE: NoteData = {
 export const FAKE_DETAIL: ConversationDetail = {
   id: "abc", patient_first_name: "Ana", patient_age: 34, patient_sex: "female",
   status: "complete", chief_complaint_summary: "Chest tightness on exertion, 2 wks",
-  has_red_flags: true, created_at: "2026-07-18T12:00:00Z",
+  has_red_flags: true, emergency_flagged: false, created_at: "2026-07-18T12:00:00Z",
   messages: [
     { role: "assistant", content: "What brings you in today?", created_at: "2026-07-18T12:00:00Z" },
     { role: "patient", content: "Chest tightness when I climb stairs.", created_at: "2026-07-18T12:00:30Z" },

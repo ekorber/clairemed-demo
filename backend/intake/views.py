@@ -73,6 +73,12 @@ def _reply_stream(conversation, first_event=None):
                 yield _sse({"delta": tail})
             full = "".join(parts).rstrip()
             Message.objects.create(conversation=conversation, role=Message.Role.ASSISTANT, content=full)
+            # Latch on: an interview that raised an emergency stays flagged even if the
+            # patient keeps talking afterwards, and even if it never reaches a note.
+            if marker_filter.urgent and not conversation.emergency_flagged:
+                conversation.emergency_flagged = True
+                conversation.save(update_fields=["emergency_flagged", "updated_at"])
+                logger.warning("emergency escalation flagged for conversation %s", conversation.id)
             yield _sse({
                 "done": True,
                 "stage": marker_filter.stage,

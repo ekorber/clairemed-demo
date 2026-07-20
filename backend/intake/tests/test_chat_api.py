@@ -109,3 +109,61 @@ def test_out_of_range_age_rejected():
                              content_type="application/json")
         assert resp.status_code == 400, bad_age
     assert Conversation.objects.count() == 0
+
+
+def _start(client=None):
+    client = client or Client()
+    with patch("intake.views.stream_reply", fake_stream(["Hi!\n<<STAGE:complaint>>"])):
+        resp = client.post("/api/conversations/start/",
+                           json.dumps({"first_name": "Ernie", "age": 62, "sex": "male"}),
+                           content_type="application/json")
+    return events(resp)[0]["conversation_id"]
+
+
+def _say(cid, content, chunks):
+    """Send a patient message and drain the stream.
+
+    The response body is lazy: merely touching .streaming_content never runs the view,
+    so nothing gets persisted and the assertions all read stale state.
+    """
+    with patch("intake.views.stream_reply", fake_stream(chunks)):
+        resp = Client().post(f"/api/conversations/{cid}/messages/",
+                             json.dumps({"content": content}),
+                             content_type="application/json")
+        return events(resp)
+
+
+def test_urgent_marker_flags_the_conversation():
+    cid = _start()
+    assert Conversation.objects.get(pk=cid).emergency_flagged is False
+
+    urgent = ["Call your local emergency number now.\n<<STAGE:complaint>>\n<<URGENT>>"]
+    _say(cid, "Crushing chest pain and I can't breathe.", urgent)
+
+    conv = Conversation.objects.get(pk=cid)
+    assert conv.emergency_flagged is True
+    # The marker must not reach the patient.
+    assert "<<URGENT>>" not in conv.messages.last().content
+
+
+def test_emergency_flag_survives_an_abandoned_interview():
+    # The case the feature exists for: the patient leaves to get help, so no note is
+    # ever generated and status stays active. The flag must still be visible in the list.
+    cid = _start()
+    urgent = ["Call your local emergency number now.\n<<STAGE:complaint>>\n<<URGENT>>"]
+    _say(cid, "Crushing chest pain.", urgent)
+
+    conv = Conversation.objects.get(pk=cid)
+    assert conv.status == Conversation.Status.ACTIVE
+    assert not hasattr(conv, "note")
+    assert conv.has_red_flags is False  # never set: no note was generated
+    row = next(c for c in Client().get("/api/conversations/").json() if c["id"] == cid)
+    assert row["emergency_flagged"] is True
+
+
+def test_emergency_flag_latches_and_is_not_cleared_by_later_replies():
+    cid = _start()
+    _say(cid, "Chest pain.", ["Get emergency care now.\n<<STAGE:complaint>>\n<<URGENT>>"])
+    _say(cid, "Actually I feel a bit better.", ["Okay. Any other symptoms?\n<<STAGE:complaint>>"])
+
+    assert Conversation.objects.get(pk=cid).emergency_flagged is True

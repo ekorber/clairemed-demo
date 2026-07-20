@@ -17,6 +17,11 @@ class Conversation(models.Model):
     status = models.CharField(max_length=12, choices=Status.choices, default=Status.ACTIVE)
     chief_complaint_summary = models.CharField(max_length=200, blank=True, default="")
     has_red_flags = models.BooleanField(default=False)
+    # Set the moment Alice escalates during the interview, independently of has_red_flags,
+    # which is only derived later from a generated note. An emergency conversation is often
+    # abandoned mid-way precisely because the patient left to get help, so it never reaches
+    # note generation and would otherwise surface as an ordinary unfinished interview.
+    emergency_flagged = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
