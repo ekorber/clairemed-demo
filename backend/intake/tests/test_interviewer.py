@@ -2,7 +2,7 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from intake.llm import interviewer
+from intake.llm import interviewer, note_generator
 from intake.models import Conversation, Message
 
 pytestmark = pytest.mark.django_db
@@ -28,6 +28,18 @@ def test_build_messages_includes_patient_context_and_history(conversation):
 def test_system_prompt_covers_core_domains():
     for term in ["OLDCARTS", "red flag", "allerg", "family", "<<STAGE:", "<<COMPLETE>>", "diagnos"]:
         assert term.lower() in interviewer.SYSTEM_PROMPT.lower()
+
+
+def test_prompts_practise_the_dash_rule_they_preach():
+    # A model imitates the style of the prompt it is shown far more reliably than it
+    # follows a negative instruction, so a prompt that bans em dashes while using them
+    # teaches the opposite of its own rule.
+    for name, prompt in [
+        ("SYSTEM_PROMPT", interviewer.SYSTEM_PROMPT),
+        ("SCRIBE_PROMPT", note_generator.SCRIBE_PROMPT),
+    ]:
+        for dash, label in [("—", "em dash"), ("–", "en dash")]:
+            assert dash not in prompt, f"{name} contains a {label} while instructing against them"
 
 
 def _chunk(text):

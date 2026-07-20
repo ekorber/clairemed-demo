@@ -8,8 +8,11 @@ import { useChat } from "./useChat";
 export default function ChatPage() {
   const { state, start, send, retryLastSend, generate } = useChat();
   const [input, setInput] = useState("");
+  const [recording, setRecording] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const busy = state.phase !== "idle" || state.interviewComplete;
+  // Only while answering the very first question, so it teaches once and gets out of the way.
+  const showVoiceHint = state.messages.length <= 1 && !input && !recording;
 
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
@@ -66,16 +69,29 @@ export default function ChatPage() {
       </div>
       {!state.interviewComplete && state.phase !== "done" && (
         <div className="border-t border-slate-200 bg-white p-3">
+          {showVoiceHint && (
+            <p className="mb-2 text-center text-xs text-slate-500">
+              Type your answer, or tap Speak to talk.
+            </p>
+          )}
           <div className="flex items-end gap-2">
-            <MicButton disabled={busy} onTranscript={(text) => setInput((v) => (v ? v + " " : "") + text)} />
-            <textarea
-              className="max-h-32 flex-1 resize-none rounded-xl border border-slate-300 px-3 py-2 focus:border-teal-500 focus:outline-none"
-              rows={1} maxLength={2000} placeholder="Type your answer…"
-              value={input} onChange={(e) => setInput(e.target.value)}
-              onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); submit(); } }}
+            <MicButton
+              disabled={busy}
+              onRecordingChange={setRecording}
+              onTranscript={(text) => setInput((v) => (v ? v + " " : "") + text)}
             />
-            <button onClick={submit} disabled={busy || !input.trim()}
-              className="rounded-xl bg-teal-600 px-4 py-2 font-semibold text-white disabled:opacity-40">Send</button>
+            {!recording && (
+              <>
+                <textarea
+                  className="max-h-32 flex-1 resize-none rounded-xl border border-slate-300 px-3 py-2 focus:border-teal-500 focus:outline-none"
+                  rows={1} maxLength={2000} placeholder="Type your answer…"
+                  value={input} onChange={(e) => setInput(e.target.value)}
+                  onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); submit(); } }}
+                />
+                <button onClick={submit} disabled={busy || !input.trim()}
+                  className="rounded-xl bg-teal-600 px-4 py-2 font-semibold text-white disabled:opacity-40">Send</button>
+              </>
+            )}
           </div>
         </div>
       )}
