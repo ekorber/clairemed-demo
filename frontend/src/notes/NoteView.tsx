@@ -22,7 +22,7 @@ export default function NoteView({ detail }: { detail: ConversationDetail }) {
   const patientLine = `${detail.patient_first_name}, ${detail.patient_age}, ${detail.patient_sex}`;
 
   if (!note)
-    return <p className="p-8 text-slate-500">This note isn't ready yet. The interview may still be in progress.</p>;
+    return <p className="text-slate-500">This note isn't ready yet. The interview may still be in progress.</p>;
 
   const copy = async () => {
     await navigator.clipboard.writeText(noteToText(note, patientLine));
@@ -31,7 +31,7 @@ export default function NoteView({ detail }: { detail: ConversationDetail }) {
   };
 
   return (
-    <div className="mx-auto max-w-3xl space-y-4 p-4 sm:p-6">
+    <div className="space-y-4">
       {note.red_flags.length > 0 && (
         <div className="rounded-xl border border-red-300 bg-red-50 p-4">
           <h2 className="font-bold text-red-700">⚠ Red flags</h2>
