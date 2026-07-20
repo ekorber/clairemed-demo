@@ -177,7 +177,7 @@ export default function MicButton({
         className="flex flex-1 items-center gap-3 rounded-xl border border-slate-300 bg-slate-50 px-3 py-2">
         <span aria-hidden="true"
           className="h-4 w-4 shrink-0 animate-spin rounded-full border-2 border-slate-300 border-t-teal-600" />
-        <span className="text-sm text-slate-600">Turning your recording into text…</span>
+        <span className="text-sm italic text-slate-500">Turning your recording into text…</span>
       </div>
     );
 
