@@ -49,7 +49,7 @@ afterEach(() => {
 
 const startRecording = async () => {
   fireEvent.click(screen.getByRole("button", { name: /speak/i }));
-  await waitFor(() => expect(screen.getByRole("button", { name: /stop/i })).toBeInTheDocument());
+  await waitFor(() => expect(screen.getByRole("button", { name: /done/i })).toBeInTheDocument());
 };
 
 describe("MicButton", () => {
@@ -82,14 +82,61 @@ describe("MicButton", () => {
     expect(screen.getByText(/0:05/)).toBeInTheDocument();
   });
 
-  it("transcribes on Stop and hands the text to the parent", async () => {
+  it("transcribes on Done and hands the text to the parent", async () => {
     const onTranscript = vi.fn();
     render(<MicButton disabled={false} onTranscript={onTranscript} />);
     await startRecording();
 
-    fireEvent.click(screen.getByRole("button", { name: /stop/i }));
+    fireEvent.click(screen.getByRole("button", { name: /done/i }));
     await waitFor(() => expect(onTranscript).toHaveBeenCalledWith("transcribed text"));
     expect(tracks[0].stop).toHaveBeenCalled();
+  });
+
+  it("keeps the affirmative action visually distinct from Cancel", async () => {
+    render(<MicButton disabled={false} onTranscript={vi.fn()} />);
+    await startRecording();
+
+    // Red must read as "recording is live", never as an action, or Done and Cancel
+    // both look like ways to throw the recording away.
+    const done = screen.getByRole("button", { name: /done/i });
+    expect(done.className).toMatch(/bg-teal-600/);
+    expect(done.className).not.toMatch(/red/);
+    expect(screen.getByRole("button", { name: /cancel/i }).className).not.toMatch(/red/);
+  });
+
+  it("shows a spinner while the recording is being transcribed", async () => {
+    let release: (text: string) => void = () => {};
+    vi.mocked(api.transcribe).mockReturnValue(new Promise((res) => { release = res; }));
+
+    const onTranscript = vi.fn();
+    render(<MicButton disabled={false} onTranscript={onTranscript} />);
+    await startRecording();
+    fireEvent.click(screen.getByRole("button", { name: /done/i }));
+
+    const status = await screen.findByRole("status");
+    expect(status).toHaveTextContent(/turning your recording into text/i);
+    expect(status.querySelector(".animate-spin")).not.toBeNull();
+
+    await act(async () => { release("transcribed text"); });
+    await waitFor(() => expect(screen.queryByRole("status")).not.toBeInTheDocument());
+    expect(onTranscript).toHaveBeenCalledWith("transcribed text");
+  });
+
+  it("treats both recording and transcribing as owning the input row", async () => {
+    let release: (text: string) => void = () => {};
+    vi.mocked(api.transcribe).mockReturnValue(new Promise((res) => { release = res; }));
+    const onActiveChange = vi.fn();
+
+    render(<MicButton disabled={false} onTranscript={vi.fn()} onActiveChange={onActiveChange} />);
+    await startRecording();
+    expect(onActiveChange).toHaveBeenLastCalledWith(true);
+
+    fireEvent.click(screen.getByRole("button", { name: /done/i }));
+    await screen.findByRole("status");
+    expect(onActiveChange).toHaveBeenLastCalledWith(true); // still owns the input row
+
+    await act(async () => { release("transcribed text"); });
+    await waitFor(() => expect(onActiveChange).toHaveBeenLastCalledWith(false));
   });
 
   it("discards the recording on Cancel without transcribing", async () => {
@@ -116,10 +163,14 @@ describe("MicButton", () => {
 
   it("surfaces an error and recovers when the mic is unavailable", async () => {
     vi.mocked(navigator.mediaDevices.getUserMedia).mockRejectedValue(new Error("denied"));
-    render(<MicButton disabled={false} onTranscript={vi.fn()} />);
+    const onActiveChange = vi.fn();
+    render(<MicButton disabled={false} onTranscript={vi.fn()} onActiveChange={onActiveChange} />);
 
     fireEvent.click(screen.getByRole("button", { name: /speak/i }));
     await waitFor(() => expect(screen.getByText(/unavailable/i)).toBeInTheDocument());
+
+    // The error tells the patient to type instead, so it must never take the textarea away.
+    expect(onActiveChange).not.toHaveBeenCalledWith(true);
 
     await act(async () => { await vi.advanceTimersByTimeAsync(3000); });
     expect(screen.getByRole("button", { name: /speak/i })).toBeInTheDocument();
