@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { usePageTitle } from "../usePageTitle";
 
 const features = [
   {
@@ -50,6 +51,7 @@ const nextSteps = [
 ];
 
 export default function HomePage() {
+  usePageTitle("Home");
   return (
     <div className="mx-auto max-w-5xl px-4 py-12">
       <section className="text-center">

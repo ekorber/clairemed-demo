@@ -5,8 +5,10 @@ import StartForm from "./StartForm";
 import StageIndicator from "./StageIndicator";
 import { clampInputHeight, INPUT_MAX_H, INPUT_MIN_H } from "./inputSizing";
 import { useChat } from "./useChat";
+import { usePageTitle } from "../usePageTitle";
 
 export default function ChatPage() {
+  usePageTitle("Intake chat");
   const { state, start, send, retryLastSend, generate } = useChat();
   const [input, setInput] = useState("");
   const [micActive, setMicActive] = useState(false);
