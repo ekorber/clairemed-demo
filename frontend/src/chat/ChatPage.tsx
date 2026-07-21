@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import MicButton from "./MicButton";
 import StartForm from "./StartForm";
 import StageIndicator from "./StageIndicator";
+import { clampInputHeight, INPUT_MAX_H, INPUT_MIN_H } from "./inputSizing";
 import { useChat } from "./useChat";
 
 export default function ChatPage() {
@@ -10,6 +11,7 @@ export default function ChatPage() {
   const [input, setInput] = useState("");
   const [micActive, setMicActive] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const taRef = useRef<HTMLTextAreaElement>(null);
   const busy = state.phase !== "idle" || state.interviewComplete;
   // Only while answering the very first question, so it teaches once and gets out of the way.
   const showVoiceHint = state.messages.length <= 1 && !input && !micActive;
@@ -17,6 +19,18 @@ export default function ChatPage() {
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
   }, [state.messages, state.streaming]);
+
+  // Grow the textarea to fit its content, from the resting height up to the cap. Reruns
+  // when the mic hands back a transcript and when the input reappears after recording.
+  useEffect(() => {
+    const el = taRef.current;
+    if (!el) return;
+    el.style.height = "auto";
+    // scrollHeight is the content box (padding, no border); the element is border-box, so add
+    // the border back or the set height lands a couple px short and scrolls prematurely.
+    const border = el.offsetHeight - el.clientHeight;
+    el.style.height = `${clampInputHeight(el.scrollHeight + border)}px`;
+  }, [input, micActive]);
 
   useEffect(() => {
     if (state.interviewComplete && state.phase === "idle") void generate();
@@ -35,20 +49,20 @@ export default function ChatPage() {
   };
 
   return (
-    <div className="mx-auto flex h-[calc(100vh-57px)] max-w-2xl flex-col">
-      <div className="flex items-center justify-between border-b border-slate-200 bg-white px-4 py-2">
+    <div className="mx-auto flex h-[calc(100vh-57px)] max-w-2xl flex-col lg:max-w-3xl">
+      <div className="flex items-center justify-between border-b border-slate-200 bg-white px-4 py-2 lg:px-6">
         <span className="text-sm font-semibold text-slate-600">Talking with Alice</span>
         <StageIndicator stage={state.stage} />
       </div>
-      <div ref={scrollRef} className="flex-1 space-y-3 overflow-y-auto px-4 py-4">
+      <div ref={scrollRef} className="flex-1 space-y-3 overflow-y-auto px-4 py-4 lg:space-y-4 lg:px-6 lg:py-6">
         {state.messages.map((m, i) => (
-          <div key={i} className={`max-w-[85%] whitespace-pre-wrap rounded-2xl px-4 py-2.5 text-[15px] ${
+          <div key={i} className={`max-w-[85%] whitespace-pre-wrap rounded-2xl px-4 py-2.5 text-[15px] lg:px-5 lg:py-3 lg:text-base ${
             m.role === "assistant" ? "bg-white border border-slate-200" : "ml-auto bg-teal-600 text-white"}`}>
             {m.content}
           </div>
         ))}
         {state.streaming && (
-          <div className="max-w-[85%] whitespace-pre-wrap rounded-2xl border border-slate-200 bg-white px-4 py-2.5 text-[15px]">
+          <div className="max-w-[85%] whitespace-pre-wrap rounded-2xl border border-slate-200 bg-white px-4 py-2.5 text-[15px] lg:px-5 lg:py-3 lg:text-base">
             {state.streaming}<span className="animate-pulse">▍</span>
           </div>
         )}
@@ -83,13 +97,16 @@ export default function ChatPage() {
             {!micActive && (
               <>
                 <textarea
-                  className="max-h-32 flex-1 resize-none rounded-xl border border-slate-300 px-3 py-2 focus:border-teal-500 focus:outline-none"
-                  rows={1} maxLength={2000} placeholder="Type your answer…"
+                  ref={taRef}
+                  className="flex-1 resize-none rounded-xl border border-slate-300 px-3 py-2 text-[15px] focus:border-teal-500 focus:outline-none"
+                  style={{ minHeight: INPUT_MIN_H, maxHeight: INPUT_MAX_H }}
+                  maxLength={2000} placeholder="Type your answer…"
                   value={input} onChange={(e) => setInput(e.target.value)}
                   onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); submit(); } }}
                 />
                 <button onClick={submit} disabled={busy || !input.trim()}
-                  className="rounded-xl bg-teal-600 px-4 py-2 font-semibold text-white disabled:opacity-40">Send</button>
+                  style={{ height: INPUT_MIN_H }}
+                  className="inline-flex items-center justify-center rounded-xl bg-teal-600 px-4 font-semibold text-white disabled:opacity-40">Send</button>
               </>
             )}
           </div>
