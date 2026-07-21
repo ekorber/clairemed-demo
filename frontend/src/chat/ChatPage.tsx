@@ -51,12 +51,17 @@ export default function ChatPage() {
   };
 
   return (
-    <div className="mx-auto flex h-[calc(100vh-57px)] max-w-2xl flex-col lg:max-w-3xl">
-      <div className="flex items-center justify-between border-b border-slate-200 bg-white px-4 py-2 lg:px-6">
-        <span className="text-sm font-semibold text-slate-600">Talking with Alice</span>
-        <StageIndicator stage={state.stage} />
+    <div className="flex h-[calc(100vh-57px)] flex-col">
+      {/* Header and footer bars span the full width; their inner content stays centered on
+          the same column as the messages, so the white edges reach the viewport on desktop. */}
+      <div className="border-b border-slate-200 bg-white">
+        <div className="mx-auto flex w-full max-w-2xl items-center justify-between px-4 py-2 lg:max-w-3xl lg:px-6">
+          <span className="text-sm font-semibold text-slate-600">Talking with Alice</span>
+          <StageIndicator stage={state.stage} />
+        </div>
       </div>
-      <div ref={scrollRef} className="flex-1 space-y-3 overflow-y-auto px-4 py-4 lg:space-y-4 lg:px-6 lg:py-6">
+      <div ref={scrollRef} className="flex-1 overflow-y-auto">
+        <div className="mx-auto w-full max-w-2xl space-y-3 px-4 py-4 lg:max-w-3xl lg:space-y-4 lg:px-6 lg:py-6">
         {state.messages.map((m, i) => (
           <div key={i} className={`max-w-[85%] whitespace-pre-wrap rounded-2xl px-4 py-2.5 text-[15px] lg:px-5 lg:py-3 lg:text-base ${
             m.role === "assistant" ? "bg-white border border-slate-200" : "ml-auto bg-teal-600 text-white"}`}>
@@ -82,9 +87,11 @@ export default function ChatPage() {
               className="mt-2 rounded-lg bg-red-600 px-4 py-1.5 font-semibold text-white">Try again</button>
           </div>
         )}
+        </div>
       </div>
       {!state.interviewComplete && state.phase !== "done" && (
-        <div className="border-t border-slate-200 bg-white p-3">
+        <div className="border-t border-slate-200 bg-white">
+          <div className="mx-auto w-full max-w-2xl px-4 py-3 lg:max-w-3xl lg:px-6">
           {showVoiceHint && (
             <p className="mb-2 text-center text-xs text-slate-500">
               Type your answer, or tap Speak to talk.
@@ -111,6 +118,7 @@ export default function ChatPage() {
                   className="inline-flex items-center justify-center rounded-xl bg-teal-600 px-4 font-semibold text-white disabled:opacity-40">Send</button>
               </>
             )}
+          </div>
           </div>
         </div>
       )}
