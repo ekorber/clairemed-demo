@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { api } from "../api/client";
+import { INPUT_MIN_H } from "./inputSizing";
 
 type MicState = "idle" | "recording" | "busy" | "error";
 
@@ -144,7 +145,8 @@ export default function MicButton({
 
   if (micState === "recording") {
     return (
-      <div className="flex flex-1 items-center gap-3 rounded-xl border border-slate-300 bg-slate-50 px-3 py-2">
+      <div style={{ minHeight: INPUT_MIN_H }}
+        className="flex flex-1 items-center gap-3 rounded-xl border border-slate-300 bg-slate-50 px-3 py-2">
         {/* Red is reserved for this dot alone: it means "recording is live", never "discard". */}
         <span className="h-2.5 w-2.5 shrink-0 animate-pulse rounded-full bg-red-600" aria-hidden="true" />
         <span className="shrink-0 font-mono text-sm tabular-nums text-slate-700">
@@ -173,7 +175,7 @@ export default function MicButton({
 
   if (micState === "busy")
     return (
-      <div role="status" aria-live="polite"
+      <div role="status" aria-live="polite" style={{ minHeight: INPUT_MIN_H }}
         className="flex flex-1 items-center gap-3 rounded-xl border border-slate-300 bg-slate-50 px-3 py-2">
         <span aria-hidden="true"
           className="h-4 w-4 shrink-0 animate-spin rounded-full border-2 border-slate-300 border-t-teal-600" />
@@ -183,7 +185,8 @@ export default function MicButton({
 
   if (micState === "error")
     return (
-      <span className="flex shrink-0 items-center rounded-xl border border-amber-300 bg-amber-50 px-3 py-2 text-sm text-amber-800">
+      <span style={{ minHeight: INPUT_MIN_H }}
+        className="flex shrink-0 items-center rounded-xl border border-amber-300 bg-amber-50 px-3 text-sm text-amber-800">
         Mic unavailable, please type
       </span>
     );
@@ -192,7 +195,8 @@ export default function MicButton({
     <button
       type="button" disabled={disabled} title="Speak your answer" aria-label="Speak your answer"
       onClick={() => void startRecording()}
-      className="flex shrink-0 items-center gap-1.5 rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm font-medium hover:bg-slate-100 disabled:opacity-40"
+      style={{ height: INPUT_MIN_H }}
+      className="flex shrink-0 items-center gap-1.5 rounded-xl border border-slate-300 bg-white px-3 text-sm font-medium hover:bg-slate-100 disabled:opacity-40"
     >
       <span aria-hidden="true" className="text-lg leading-none">🎤</span> Speak
     </button>

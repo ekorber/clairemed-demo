@@ -5,8 +5,10 @@ import type { ConversationDetail, ConversationSummary } from "../api/types";
 import DeleteConversation from "./DeleteConversation";
 import NoteView from "./NoteView";
 import Transcript from "./Transcript";
+import { usePageTitle } from "../usePageTitle";
 
 export default function NotesPage() {
+  usePageTitle("Notes");
   const { id } = useParams();
   const navigate = useNavigate();
   const [conversations, setConversations] = useState<ConversationSummary[] | null>(null);
